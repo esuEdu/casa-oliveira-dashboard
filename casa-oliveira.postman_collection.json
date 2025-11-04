@@ -1,0 +1,1571 @@
+{
+	"info": {
+		"name": "Casa Oliveira API",
+		"_postman_id": "d5c1a8a4-3c3a-4c21-9c90-5a2b07b1a0aa",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"description": "Postman collection for Casa Oliveira Serverless API. Use {{baseUrl}} as the API Gateway base (e.g., https://xxxx.execute-api.<region>.amazonaws.com/Prod). For protected routes, set {{accessToken}} to a valid Cognito access token."
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Register",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"John Doe\",\n  \"email\": \"john@example.com\",\n  \"phone\": \"+351911111111\",\n  \"password\": \"Secret#123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/register",
+							"host": ["{{baseUrl}}"],
+							"path": ["auth", "register"]
+						}
+					},
+					"response": [
+						{
+							"name": "201 Created",
+							"status": "Created",
+							"code": 201,
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"message\": \"User john@example.com registered successfully\"\n}"
+						},
+						{
+							"name": "409 Email exists",
+							"status": "Conflict",
+							"code": 409,
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{ \n  \"message\": \"email already registered\" \n}"
+						},
+						{
+							"name": "400 Weak password / invalid json",
+							"status": "Bad Request",
+							"code": 400,
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{ \n  \"message\": \"password does not meet requirements\" \n}"
+						},
+						{
+							"name": "500 Missing Cognito config or server error",
+							"status": "Internal Server Error",
+							"code": 500,
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{ \n  \"message\": \"missing Cognito configuration\" \n}"
+						}
+					]
+				},
+				{
+					"name": "Login",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"john@example.com\",\n  \"password\": \"Secret#123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/login",
+							"host": ["{{baseUrl}}"],
+							"path": ["auth", "login"]
+						}
+					},
+					"response": [
+						{
+							"name": "200 OK (tokens)",
+							"status": "OK",
+							"code": 200,
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"accessToken\": \"<JWT_ACCESS_TOKEN>\",\n  \"idToken\": \"<JWT_ID_TOKEN>\",\n  \"refreshToken\": \"<REFRESH_TOKEN>\",\n  \"expiresIn\": 3600,\n  \"tokenType\": \"Bearer\"\n}"
+						},
+						{
+							"name": "200 NEW_PASSWORD_REQUIRED (challenge)",
+							"status": "OK",
+							"code": 200,
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"challenge\": \"NEW_PASSWORD_REQUIRED\",\n  \"session\": \"<COGNITO_SESSION>\"\n}"
+						},
+						{
+							"name": "401 Invalid login",
+							"status": "Unauthorized",
+							"code": 401,
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\\n  \\\"message\\\": \\\"invalid email or password\\\"\\n}"
+						},
+						{
+							"name": "500 Server error",
+							"status": "Internal Server Error",
+							"code": 500,
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\\n  \\\"message\\\": \\\"missing Cognito configuration\\\"\\n}"
+						}
+					]
+				},
+				{
+					"name": "Confirm Sign Up",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"john@example.com\",\n  \"code\": \"123456\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/confirm",
+							"host": ["{{baseUrl}}"],
+							"path": ["auth", "confirm"]
+						}
+					},
+					"response": [
+						{
+							"name": "200 Confirmed",
+							"status": "OK",
+							"code": 200,
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\\n  \\\"message\\\": \\\"confirmed\\\"\\n}"
+						},
+						{
+							"name": "400 Invalid json",
+							"status": "Bad Request",
+							"code": 400,
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\\n  \\\"message\\\": \\\"invalid json\\\"\\n}"
+						},
+						{
+							"name": "500 Server error",
+							"status": "Internal Server Error",
+							"code": 500,
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\\n  \\\"message\\\": \\\"<error>\\\"\\n}"
+						}
+					]
+				},
+				{
+					"name": "Forgot Password",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"john@example.com\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/forgot-password",
+							"host": ["{{baseUrl}}"],
+							"path": ["auth", "forgot-password"]
+						}
+					},
+					"response": [
+						{
+							"name": "200 Code sent",
+							"status": "OK",
+							"code": 200,
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\\n  \\\"message\\\": \\\"code sent\\\"\\n}"
+						},
+						{
+							"name": "400 Invalid json",
+							"status": "Bad Request",
+							"code": 400,
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\\n  \\\"message\\\": \\\"invalid json\\\"\\n}"
+						},
+						{
+							"name": "500 Server error",
+							"status": "Internal Server Error",
+							"code": 500,
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\\n  \\\"message\\\": \\\"<error>\\\"\\n}"
+						}
+					]
+				},
+				{
+					"name": "Confirm Forgot Password",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"john@example.com\",\n  \"code\": \"123456\",\n  \"newPassword\": \"NewSecret#123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/forgot-password/confirm",
+							"host": ["{{baseUrl}}"],
+							"path": ["auth", "forgot-password", "confirm"]
+						}
+					},
+					"response": [
+						{
+							"name": "200 Password changed",
+							"status": "OK",
+							"code": 200,
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\\n  \\\"message\\\": \\\"password changed\\\"\\n}"
+						},
+						{
+							"name": "400 Invalid json",
+							"status": "Bad Request",
+							"code": 400,
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\\n  \\\"message\\\": \\\"invalid json\\\"\\n}"
+						},
+						{
+							"name": "500 Server error",
+							"status": "Internal Server Error",
+							"code": 500,
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\\n  \\\"message\\\": \\\"<error>\\\"\\n}"
+						}
+					]
+				},
+				{
+					"name": "First Login (Complete New Password)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"collab@example.com\",\n  \"tempPassword\": \"Temp#ABC123\",\n  \"newPassword\": \"NewSecret#123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/first-login",
+							"host": ["{{baseUrl}}"],
+							"path": ["auth", "first-login"]
+						}
+					},
+					"response": [
+						{
+							"name": "200 OK (tokens)",
+							"status": "OK",
+							"code": 200,
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\\n  \\\"accessToken\\\": \\\"<JWT_ACCESS_TOKEN>\\\",\\n  \\\"idToken\\\": \\\"<JWT_ID_TOKEN>\\\",\\n  \\\"refreshToken\\\": \\\"<REFRESH_TOKEN>\\\",\\n  \\\"expiresIn\\\": 3600,\\n  \\\"tokenType\\\": \\\"Bearer\\\"\\n}"
+						},
+						{
+							"name": "400 Invalid json",
+							"status": "Bad Request",
+							"code": 400,
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\\n  \\\"message\\\": \\\"invalid json\\\"\\n}"
+						},
+						{
+							"name": "500 Server error",
+							"status": "Internal Server Error",
+							"code": 500,
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\\n  \\\"message\\\": \\\"<error>\\\"\\n}"
+						}
+					]
+				},
+				{
+					"name": "Refresh Tokens",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"refreshToken\": \"<REFRESH_TOKEN>\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/refresh",
+							"host": ["{{baseUrl}}"],
+							"path": ["auth", "refresh"]
+						}
+					},
+					"response": [
+						{
+							"name": "200 OK (tokens)",
+							"status": "OK",
+							"code": 200,
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\\n  \\\"accessToken\\\": \\\"<NEW_JWT_ACCESS_TOKEN>\\\",\\n  \\\"idToken\\\": \\\"<NEW_JWT_ID_TOKEN>\\\",\\n  \\\"refreshToken\\\": \\\"<REFRESH_TOKEN>\\\",\\n  \\\"expiresIn\\\": 3600,\\n  \\\"tokenType\\\": \\\"Bearer\\\"\\n}"
+						},
+						{
+							"name": "400 Missing/invalid refresh token",
+							"status": "Bad Request",
+							"code": 400,
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\\n  \\\"message\\\": \\\"invalid json\\\"\\n}"
+						},
+						{
+							"name": "401 Unauthorized",
+							"status": "Unauthorized",
+							"code": 401,
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\\n  \\\"message\\\": \\\"<error>\\\"\\n}"
+						}
+					]
+				},
+				{
+					"name": "Admin Create Collaborator",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Jane Collaborator\",\n  \"email\": \"jane@example.com\",\n  \"phone\": \"+351922222222\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/admin/collaborators",
+							"host": ["{{baseUrl}}"],
+							"path": ["auth", "admin", "collaborators"]
+						}
+					},
+					"response": [
+						{
+							"name": "201 Created",
+							"status": "Created",
+							"code": 201,
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\\n  \\\"user\\\": { \\\"id\\\": \\\"<id>\\\", \\\"name\\\": \\\"Jane Collaborator\\\", \\\"email\\\": \\\"jane@example.com\\\", \\\"phone\\\": \\\"+351922222222\\\", \\\"status\\\": \\\"Active\\\", \\\"role\\\": \\\"Collaborator\\\" },\\n  \\\"temporaryPassword\\\": \\\"Temp#ABC123\\\"\\n}"
+						},
+						{
+							"name": "403 Forbidden",
+							"status": "Forbidden",
+							"code": 403,
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{ \\\"message\\\": \\\"forbidden\\\" }"
+						},
+						{
+							"name": "400 Invalid json",
+							"status": "Bad Request",
+							"code": 400,
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{ \\\"message\\\": \\\"invalid json\\\" }"
+						},
+						{
+							"name": "500 Server error",
+							"status": "Internal Server Error",
+							"code": 500,
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{ \\\"message\\\": \\\"<error>\\\" }"
+						}
+					]
+				}
+			]
+		},
+
+		{
+			"name": "Products",
+			"item": [
+				{
+					"name": "List Products",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/products?page=1&pageSize=10&status=active&categories=1,2&q=olive&sortBy=createdAt&sortOrder=desc",
+							"host": ["{{baseUrl}}"],
+							"path": ["products"],
+							"query": [
+								{ "key": "page", "value": "1" },
+								{ "key": "pageSize", "value": "10" },
+								{ "key": "status", "value": "active" },
+								{ "key": "categories", "value": "1,2" },
+								{ "key": "q", "value": "olive" },
+								{ "key": "sortBy", "value": "createdAt" },
+								{ "key": "sortOrder", "value": "desc" }
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "200 OK",
+							"status": "OK",
+							"code": 200,
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"items\": [\n    {\n      \"id\": \"123\",\n      \"name\": \"Olive Oil\",\n      \"description\": \"Extra virgin\",\n      \"specs\": { \"volume\": \"500ml\" },\n      \"categories\": [1,2],\n      \"status\": \"active\",\n      \"images\": [\"img-1.jpg\"],\n      \"primaryCategory\": 1,\n      \"createdAt\": \"2025-01-01T10:00:00Z\",\n      \"updatedAt\": \"2025-01-02T10:00:00Z\"\n    }\n  ],\n  \"count\": 1,\n  \"page\": 1,\n  \"pageSize\": 10,\n  \"hasNextPage\": true\n}"
+						},
+						{
+							"name": "404 Not found",
+							"status": "Not Found",
+							"code": 404,
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{ \n  \"message\": \"no products found\" \n}"
+						},
+						{
+							"name": "400 Invalid query",
+							"status": "Bad Request",
+							"code": 400,
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{ \n  \"message\": \"invalid limit\" \n}"
+						},
+						{
+							"name": "500 Server error",
+							"status": "Internal Server Error",
+							"code": 500,
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{ \n  \"message\": \"<error>\" \n}"
+						}
+					]
+				},
+				{
+					"name": "Get Product by ID",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/products/123",
+							"host": ["{{baseUrl}}"],
+							"path": ["products", "123"]
+						}
+					},
+					"response": [
+						{
+							"name": "200 OK",
+							"status": "OK",
+							"code": 200,
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"id\": \"123\",\n  \"name\": \"Olive Oil\",\n  \"description\": \"Extra virgin\",\n  \"specs\": { \"volume\": \"500ml\" },\n  \"categories\": [1,2],\n  \"status\": \"active\",\n  \"images\": [\"img-1.jpg\"],\n  \"primaryCategory\": 1,\n  \"createdAt\": \"2025-01-01T10:00:00Z\",\n  \"updatedAt\": \"2025-01-02T10:00:00Z\"\n}"
+						},
+						{
+							"name": "404 Not found",
+							"status": "Not Found",
+							"code": 404,
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{ \n  \"message\": \"product not found\" \n}"
+						},
+						{
+							"name": "500 Server error",
+							"status": "Internal Server Error",
+							"code": 500,
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{ \n  \"message\": \"<error>\" \n}"
+						}
+					]
+				},
+				{
+					"name": "Create Product (Admin/Collaborator)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Olive Oil\",\n  \"description\": \"Extra virgin\",\n  \"specs\": { \"volume\": \"500ml\" },\n  \"categories\": [1,2],\n  \"status\": \"active\",\n  \"images\": [\"img-1.jpg\"],\n  \"primaryCategory\": 1\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/products",
+							"host": ["{{baseUrl}}"],
+							"path": ["products"]
+						}
+					},
+					"response": [
+						{
+							"name": "201 Created",
+							"status": "Created",
+							"code": 201,
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"id\": \"123\",\n  \"name\": \"Olive Oil\",\n  \"description\": \"Extra virgin\",\n  \"specs\": { \"volume\": \"500ml\" },\n  \"categories\": [1,2],\n  \"status\": \"active\",\n  \"images\": [\"img-1.jpg\"],\n  \"primaryCategory\": 1,\n  \"createdAt\": \"2025-01-01T10:00:00Z\",\n  \"updatedAt\": \"2025-01-01T10:00:00Z\"\n}"
+						},
+						{
+							"name": "403 Forbidden",
+							"status": "Forbidden",
+							"code": 403,
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{ \n  \"message\": \"forbidden\" \n}"
+						},
+						{
+							"name": "400 Invalid json",
+							"status": "Bad Request",
+							"code": 400,
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{ \n  \"message\": \"invalid json\" \n}"
+						},
+						{
+							"name": "500 Server error",
+							"status": "Internal Server Error",
+							"code": 500,
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{ \n  \"message\": \"<error>\" \n}"
+						}
+					]
+				},
+				{
+					"name": "Update Product (Admin/Collaborator)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id\": \"123\",\n  \"name\": \"Olive Oil Premium\",\n  \"status\": \"inactive\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/products/123",
+							"host": ["{{baseUrl}}"],
+							"path": ["products", "123"]
+						}
+					},
+					"response": [
+						{
+							"name": "200 OK",
+							"status": "OK",
+							"code": 200,
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"id\": \"123\",\n  \"name\": \"Olive Oil Premium\",\n  \"status\": \"inactive\",\n  \"updatedAt\": \"2025-01-02T10:00:00Z\"\n}"
+						},
+						{
+							"name": "400 Id mismatch / invalid json",
+							"status": "Bad Request",
+							"code": 400,
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{ \n  \"message\": \"id mismatch between path and body\" \n}"
+						},
+						{
+							"name": "403 Forbidden",
+							"status": "Forbidden",
+							"code": 403,
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{ \n  \"message\": \"forbidden\" \n}"
+						},
+						{
+							"name": "500 Server error",
+							"status": "Internal Server Error",
+							"code": 500,
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{ \n  \"message\": \"<error>\" \n}"
+						}
+					]
+				},
+				{
+					"name": "Delete Product (Admin/Collaborator)",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/products/123",
+							"host": ["{{baseUrl}}"],
+							"path": ["products", "123"]
+						}
+					},
+					"response": [
+						{
+							"name": "200 Deleted",
+							"status": "OK",
+							"code": 200,
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{ \n  \"message\": \"deleted\" \n}"
+						},
+						{
+							"name": "403 Forbidden",
+							"status": "Forbidden",
+							"code": 403,
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{ \n  \"message\": \"forbidden\" \n}"
+						},
+						{
+							"name": "500 Server error",
+							"status": "Internal Server Error",
+							"code": 500,
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{ \n  \"message\": \"<error>\" \n}"
+						}
+					]
+				}
+			]
+		},
+
+		{
+			"name": "Categories",
+			"item": [
+				{
+					"name": "List Categories",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/categories?page=1&pageSize=20",
+							"host": ["{{baseUrl}}"],
+							"path": ["categories"],
+							"query": [
+								{ "key": "page", "value": "1" },
+								{ "key": "pageSize", "value": "20" }
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "200 OK",
+							"status": "OK",
+							"code": 200,
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{ \n  \"items\": [ { \"id\": \"1\", \"name\": \"Oil\", \"createdAt\": \"2025-01-01T10:00:00Z\", \"updatedAt\": \"2025-01-01T10:00:00Z\" } ],\n  \"count\": 1,\n  \"page\": 1,\n  \"pageSize\": 20,\n  \"hasNextPage\": false\n}"
+						},
+						{
+							"name": "404 Not found",
+							"status": "Not Found",
+							"code": 404,
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{ \n  \"message\": \"no categories found\" \n}"
+						}
+					]
+				},
+				{
+					"name": "Get Category by ID",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/categories/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["categories", "1"]
+						}
+					},
+					"response": [
+						{
+							"name": "200 OK",
+							"status": "OK",
+							"code": 200,
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{ \n  \"id\": \"1\", \n  \"name\": \"Oil\", \n  \"createdAt\": \"2025-01-01T10:00:00Z\", \n  \"updatedAt\": \"2025-01-01T10:00:00Z\" \n}"
+						},
+						{
+							"name": "404 Not found",
+							"status": "Not Found",
+							"code": 404,
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{ \n  \"message\": \"category not found\" \n}"
+						}
+					]
+				},
+				{
+					"name": "Create Category (Admin/Collaborator)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Oil\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/categories",
+							"host": ["{{baseUrl}}"],
+							"path": ["categories"]
+						}
+					},
+					"response": [
+						{
+							"name": "201 Created",
+							"status": "Created",
+							"code": 201,
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{ \n  \"id\": \"1\", \"name\": \"Oil\", \"createdAt\": \"2025-01-01T10:00:00Z\", \"updatedAt\": \"2025-01-01T10:00:00Z\" \n}"
+						},
+						{
+							"name": "400 Invalid json/name",
+							"status": "Bad Request",
+							"code": 400,
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{ \n  \"message\": \"name is required\" \n}"
+						},
+						{
+							"name": "403 Forbidden",
+							"status": "Forbidden",
+							"code": 403,
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{ \n  \"message\": \"forbidden\" \n}"
+						}
+					]
+				},
+				{
+					"name": "Update Category (Admin/Collaborator)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id\": \"1\",\n  \"name\": \"Oils\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/categories/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["categories", "1"]
+						}
+					},
+					"response": [
+						{
+							"name": "200 OK",
+							"status": "OK",
+							"code": 200,
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{ \n  \"id\": \"1\", \"name\": \"Oils\" \n}"
+						},
+						{
+							"name": "400 Id mismatch/invalid json",
+							"status": "Bad Request",
+							"code": 400,
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{ \n  \"message\": \"id mismatch between path and body\" \n}"
+						},
+						{
+							"name": "403 Forbidden",
+							"status": "Forbidden",
+							"code": 403,
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{ \n  \"message\": \"forbidden\" \n}"
+						}
+					]
+				},
+				{
+					"name": "Delete Category (Admin/Collaborator)",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/categories/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["categories", "1"]
+						}
+					},
+					"response": [
+						{
+							"name": "200 Deleted",
+							"status": "OK",
+							"code": 200,
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{ \n  \"message\": \"deleted\" \n}"
+						}
+					]
+				}
+			]
+		},
+
+		{
+			"name": "Users",
+			"item": [
+				{
+					"name": "Get Me",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/me",
+							"host": ["{{baseUrl}}"],
+							"path": ["me"]
+						}
+					},
+					"response": [
+						{
+							"name": "200 OK",
+							"status": "OK",
+							"code": 200,
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{ \n  \"id\": \"<sub>\", \"name\": \"John Doe\", \"email\": \"john@example.com\", \"phone\": \"+351911111111\", \"status\": \"Active\", \"role\": \"User\" \n}"
+						},
+						{
+							"name": "404 Not found",
+							"status": "Not Found",
+							"code": 404,
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{ \n  \"message\": \"user not found\" \n}"
+						}
+					]
+				},
+				{
+					"name": "List Users (Admin/Collaborator)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/users?page=1&pageSize=10&status=Active&role=User&q=john",
+							"host": ["{{baseUrl}}"],
+							"path": ["users"],
+							"query": [
+								{ "key": "page", "value": "1" },
+								{ "key": "pageSize", "value": "10" },
+								{ "key": "status", "value": "Active" },
+								{ "key": "role", "value": "User" },
+								{ "key": "q", "value": "john" }
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "200 OK",
+							"status": "OK",
+							"code": 200,
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{ \n  \"items\": [ { \n    \"id\": \"<id>\", \"name\": \"John Doe\", \"email\": \"john@example.com\", \"role\": \"User\", \"status\": \"Active\" \n  } ], \n  \"count\": 1, \n  \"page\": 1, \n  \"pageSize\": 10, \n  \"hasNextPage\": false \n}"
+						},
+						{
+							"name": "403 Forbidden",
+							"status": "Forbidden",
+							"code": 403,
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{ \n  \"message\": \"forbidden\" \n}"
+						},
+						{
+							"name": "404 Not found",
+							"status": "Not Found",
+							"code": 404,
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{ \n  \"message\": \"no users found\" \n}"
+						}
+					]
+				},
+				{
+					"name": "Update User",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"John D.\",\n  \"phone\": \"+351933333333\",\n  \"favorites\": [\"123\", \"456\"],\n  \"status\": \"Active\",\n  \"role\": \"Collaborator\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/users/<id>",
+							"host": ["{{baseUrl}}"],
+							"path": ["users", "<id>"]
+						}
+					},
+					"response": [
+						{
+							"name": "200 OK",
+							"status": "OK",
+							"code": 200,
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{ \n  \"id\": \"<id>\", \"name\": \"John D.\", \"phone\": \"+351933333333\", \"favorites\": [\"123\",\"456\"], \"status\": \"Active\", \"role\": \"Collaborator\" \n}"
+						},
+						{
+							"name": "403 Forbidden",
+							"status": "Forbidden",
+							"code": 403,
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{ \n  \"message\": \"forbidden\" \n}"
+						},
+						{
+							"name": "404 Not found",
+							"status": "Not Found",
+							"code": 404,
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{ \n  \"message\": \"user not found\" \n}"
+						},
+						{
+							"name": "400 Invalid json",
+							"status": "Bad Request",
+							"code": 400,
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{ \n  \"message\": \"invalid json\" \n}"
+						}
+					]
+				}
+			]
+		},
+
+		{
+			"name": "Images",
+			"item": [
+				{
+					"name": "Upload Image (Admin/Collaborator)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{ "key": "file", "type": "file", "src": "" }
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/images",
+							"host": ["{{baseUrl}}"],
+							"path": ["images"]
+						}
+					},
+					"response": [
+						{
+							"name": "201 Created",
+							"status": "Created",
+							"code": 201,
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{ \n  \"key\": \"img-1730045599000000.jpg\" \n}"
+						},
+						{
+							"name": "400 Bad Request (not multipart / missing file)",
+							"status": "Bad Request",
+							"code": 400,
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{ \n  \"message\": \"file part is required\" \n}"
+						},
+						{
+							"name": "403 Forbidden",
+							"status": "Forbidden",
+							"code": 403,
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{ \n  \"message\": \"forbidden\" \n}"
+						}
+					]
+				},
+				{
+					"name": "Get Image URL",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/images/img-1730045599000000.jpg",
+							"host": ["{{baseUrl}}"],
+							"path": ["images", "img-1730045599000000.jpg"]
+						}
+					},
+					"response": [
+						{
+							"name": "200 OK",
+							"status": "OK",
+							"code": 200,
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{ \n  \"url\": \"https://s3.amazonaws.com/<bucket>/img-1730045599000000.jpg?X-Amz-Signature=...\" \n}"
+						},
+						{
+							"name": "400 Invalid input",
+							"status": "Bad Request",
+							"code": 400,
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{ \n  \"message\": \"invalid input\" \n}"
+						}
+					]
+				}
+			]
+		},
+
+		{
+			"name": "Store",
+			"item": [
+				{
+					"name": "Get Store",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/store",
+							"host": ["{{baseUrl}}"],
+							"path": ["store"]
+						}
+					},
+					"response": [
+						{
+							"name": "200 OK",
+							"status": "OK",
+							"code": 200,
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{ \n  \"id\": \"store\", \"email\": \"contact@example.com\", \"phone\": \"+351900000000\", \"location\": \"Lisbon\", \"createdAt\": \"2025-01-01T10:00:00Z\", \"updatedAt\": \"2025-01-01T10:00:00Z\" \n}"
+						},
+						{
+							"name": "404 Not found",
+							"status": "Not Found",
+							"code": 404,
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{ \n  \"message\": \"store not found\" \n}"
+						}
+					]
+				},
+				{
+					"name": "Create Store (Admin/Collaborator)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"contact@example.com\",\n  \"phone\": \"+351900000000\",\n  \"location\": \"Lisbon\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/store",
+							"host": ["{{baseUrl}}"],
+							"path": ["store"]
+						}
+					},
+					"response": [
+						{
+							"name": "201 Created",
+							"status": "Created",
+							"code": 201,
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{ \n  \"id\": \"store\", \"email\": \"contact@example.com\", \"phone\": \"+351900000000\", \"location\": \"Lisbon\" \n}"
+						},
+						{
+							"name": "403 Forbidden",
+							"status": "Forbidden",
+							"code": 403,
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{ \n  \"message\": \"forbidden\" \n}"
+						}
+					]
+				},
+				{
+					"name": "Update Store (Admin/Collaborator)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"contact@example.com\",\n  \"phone\": \"+351900000001\",\n  \"location\": \"Porto\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/store",
+							"host": ["{{baseUrl}}"],
+							"path": ["store"]
+						}
+					},
+					"response": [
+						{
+							"name": "200 OK",
+							"status": "OK",
+							"code": 200,
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{ \n  \"id\": \"store\", \"email\": \"contact@example.com\", \"phone\": \"+351900000001\", \"location\": \"Porto\" \n}"
+						},
+						{
+							"name": "403 Forbidden",
+							"status": "Forbidden",
+							"code": 403,
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{ \n  \"message\": \"forbidden\" \n}"
+						}
+					]
+				},
+				{
+					"name": "Get Store Overview",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/store/overview",
+							"host": ["{{baseUrl}}"],
+							"path": ["store", "overview"]
+						}
+					},
+					"response": [
+						{
+							"name": "200 OK",
+							"status": "OK",
+							"code": 200,
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"products\": 42,\n  \"users\": 12,\n  \"categories\": 5\n}"
+						}
+					]
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "https://<api-id>.execute-api.<region>.amazonaws.com/Prod",
+			"type": "string"
+		},
+		{
+			"key": "accessToken",
+			"value": "",
+			"type": "string"
+		}
+	]
+}
